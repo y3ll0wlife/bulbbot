@@ -1,6 +1,6 @@
 import Command from "../../structures/Command";
 import CommandContext from "../../structures/CommandContext";
-import { Collection, GuildBan, Message, MessageEmbed, User } from "discord.js";
+import { Collection, GuildBan, Message, MessageEmbed } from "discord.js";
 import BulbBotClient from "../../structures/BulbBotClient";
 import { embedColor } from "../../Config";
 
@@ -54,7 +54,7 @@ export default class extends Command {
 			maxArgs: -1,
 			clearance: 50,
 			userPerms: ["BAN_MEMBERS"],
-			clientPerms: ["BAN_MEMBERS"],
+			clientPerms: ["BAN_MEMBERS", "EMBED_LINKS"],
 		});
 	}
 
@@ -73,7 +73,7 @@ export default class extends Command {
 
 		list = list!.filter(n => n);
 		list = [...new Set(list)];
-		let desc: string[] = [];
+		const desc: string[] = [];
 
 		list.forEach(ban => {
 			desc.push(`**${ban!.user?.tag}** \`(${ban!.user?.id})\` \`\`\`${ban?.reason}\`\`\``);
