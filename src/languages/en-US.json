@@ -293,6 +293,8 @@
 
   "channelinfo_unable_to_find": "{{emote_warn}} Unable to find the channel you are looking for (or you are missing permission to view that channel)",
 
+  "messageinfo_unable_to_find": "{{emote_warn}} Unable to find the message you are looking for (or you are missing permission to view that message)",
+
   "remind_list_none": "{{emote_warn}} You have not set any reminders",
   "remind_placeholder": "No Reminders Selected",
   "remind_prompt": "{{emote_remind}} **{{user.tag}}'s** `({{user.id}})` active reminders",
