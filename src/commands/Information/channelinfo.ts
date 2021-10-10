@@ -2,7 +2,7 @@ import Command from "../../structures/Command";
 import CommandContext from "../../structures/CommandContext";
 import BulbBotClient from "../../structures/BulbBotClient";
 import { NonDigits } from "../../utils/Regex";
-import { GuildChannel, MessageActionRow, MessageButton, MessageEmbed, ThreadChannel } from "discord.js";
+import { GuildChannel, MessageActionRow, MessageButton, MessageEmbed, TextChannel, ThreadChannel } from "discord.js";
 import { embedColor } from "../../Config";
 
 export default class extends Command {
@@ -26,7 +26,7 @@ export default class extends Command {
 
 		const channel: GuildChannel | ThreadChannel | undefined = context.guild?.channels.cache.get(channelId);
 		if (!channel?.permissionsFor(context.member!)?.has("VIEW_CHANNEL", true)) {
-			context.channel.send(":(");
+			context.channel.send(await this.client.bulbutils.translate("channelinfo_unable_to_find", context.guild!.id, {}));
 			return;
 		}
 		const desc: string[] = [`**ID:** ${channel.id}`, `**Name:** ${channel.name}`, `**Mention:** <#${channel.id}>`];
@@ -40,19 +40,35 @@ export default class extends Command {
 
 			channel.rateLimitPerUser! > 0 ? desc.push(`**Slowmode:** ${channel.rateLimitPerUser} seconds`) : null;
 			if (channel.type !== "GUILD_NEWS_THREAD" && channel.type !== "GUILD_PRIVATE_THREAD" && channel.type !== "GUILD_PUBLIC_THREAD") {
-				// @ts-ignore
-				channel.topic !== null ? desc.push(`**Topic:** ${channel.topic}`) : null; // @ts-ignore
-				desc.push(`**NSFW:** ${channel.nsfw}`);
+				const textChannels: TextChannel = <TextChannel>(<unknown>channel);
+				textChannels.topic !== null ? desc.push(`**Topic:** ${textChannels.topic}`) : null;
+				desc.push(`**NSFW:** ${textChannels.nsfw}`);
+				desc.push(
+					`\n**Your permissions:** ${textChannels
+						.permissionsFor(context.author)
+						?.toArray()
+						.map(p => `\`${p}\``)
+						.join(" ")}`,
+				);
 			}
 		} else if (channel.isVoice()) {
 			desc.push(`**RTC region:** ${channel.rtcRegion === null ? "Automatic" : channel.rtcRegion}`);
 			desc.push(`**User limit:** ${channel.userLimit === 0 ? "Unlimited" : channel.userLimit}`);
 			desc.push(`**Bitrate:** ${channel.bitrate}`);
-		} else if (channel.isThread()) {
-			console.log(channel);
+
+			desc.push(
+				`\n**Your permissions:** ${channel
+					.permissionsFor(context.author)
+					?.toArray()
+					.map(p => `\`${p}\``)
+					.join(" ")}`,
+			);
 		}
 
+		const channelType: string = channel.type.replaceAll("_", " ").toLowerCase();
+
 		const embed = new MessageEmbed()
+			.setAuthor(channelType.charAt(0).toUpperCase() + channelType.slice(1))
 			.setColor(embedColor)
 			.setDescription(desc.join("\n"))
 			.setFooter(
